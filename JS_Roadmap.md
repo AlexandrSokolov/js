@@ -1,0 +1,38 @@
+
+- JavaScript execution & options
+  - Runtime environments: browser vs. Node; 
+  - execution contexts; 
+  - script loading/execution: <script> defer/async, 
+  - ESM vs. classic scripts, 
+  - modules/imports, bundlers
+- Passing parameters to JS (same-origin / same-context)
+  - URL query/hash, 
+  - HTML data-* attributes, 
+  - inline type="application/json" blocks, 
+  - global variables, 
+  - script tag attributes, 
+  - fetching config, 
+  - environment flags
+- Cross‑domain JS & passing parameters to it
+  - Same‑Origin Policy
+  - CORS
+  - postMessage between windows/iframes
+  - JSONP history
+  - cookies vs. SameSite
+  - storage isolation
+  - service workers
+  - fetch with credentials.
+- Untrusted JS
+  - Security hardening: sandboxed iframes, 
+  - CSP, 
+  - Trusted Types, 
+  - Subresource Integrity, 
+  - DOMPurify/templating hygiene, 
+  - Realms/isolation patterns, 
+  - supply‑chain risks.
+- Web platform basics: HTML, DOM, CSS; how <script> works; browser devtools.
+- HTTP fundamentals: methods, headers, cookies, caching, redirects.
+- JavaScript essentials: scope/closures, modules (ESM), promises/async‑await, event loop.
+- Origin model & storage: origins vs. sites, localStorage/sessionStorage, cookies.
+- Security mindset: XSS/CSRF basics, CSP/SRI at a high level.
+- browser rendering

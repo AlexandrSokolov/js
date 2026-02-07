@@ -5,6 +5,8 @@ The JavaScript event loop
 - [fetch’s networking, type of task](#fetchs-networking-type-of-task)
 - [Describe a code snippet #1](#describe-a-code-snippet-1)
 - [Describe a code snippet #2](#describe-a-code-snippet-2)
+- [How to make the order deterministic, first `setTimeout` macrotask and only then `.then` microtask?](#how-to-make-the-order-deterministic-first-settimeout-macrotask-and-only-then-then-microtask)
+- [How to make the order deterministic, first `.then` microtask and only then `setTimeout` macrotask?](#how-to-make-the-order-deterministic-first-then-microtask-and-only-then-settimeout-macrotask)
 
 Browser Rendering Behaviour
 - [Can CSS affect JS?](#can-css-affect-js)
@@ -14,8 +16,9 @@ Browser Rendering Behaviour
 - [Module scripts, do they block HTML parsing?](#module-scripts-do-they-block-html-parsing)
 - [Module vs deferred scripts](#module-vs-deferred-scripts)
 - [What’s the difference in execution between the scripts](#whats-the-difference-in-execution-between-the-scripts)
+- [DOMContentLoaded Behavior and the scripts execution](#domcontentloaded-behavior-and-the-scripts-execution)
 - [Describe a code snippet #3](#describe-a-code-snippet-3)
-- [Does placing a <script> inside a <template> element block the DOM parser?](#does-placing-a-script-inside-a-template-element-block-the-dom-parser)
+- [Does placing a `<script>` inside a `<template>` element block the DOM parser?](#does-placing-a-script-inside-a-template-element-block-the-dom-parser)
 - [If a script throws an error during execution, does the browser continue parsing HTML afterward?](#if-a-script-throws-an-error-during-execution-does-the-browser-continue-parsing-html-afterward)
 - [Does `await` inside top‑level ES modules block DOM parsing?](#does-await-inside-toplevel-es-modules-block-dom-parsing)
 - [Using `document.write()` in JavaScript code](#using-documentwrite-in-javascript-code)
@@ -23,13 +26,18 @@ Browser Rendering Behaviour
 `window.onload` and `DOMContentLoaded`
 - [When does `window.onload = function (...) { ... }` run?](#when-does-windowonload--function-----run)
 - [The window onload event for code triggering, its pros, cons, when to use it?](#the-window-onload-event-for-code-triggering-its-pros-cons-when-to-use-it)
-- [Does window.onload always wait for CSS files? Fonts? Iframes? Videos?](#does-windowonload-always-wait-for-css-files-fonts-iframes-videos)
+- [Does window.onload always wait for CSS files? Images? Fonts? Iframes? Videos?](#does-windowonload-always-wait-for-css-files-images-fonts-iframes-videos)
 - [When does DOMContentLoaded event run?](#when-does-domcontentloaded-event-run)
 - [DOMContentLoaded event for code triggering, its pros, cons, when to use it?](#domcontentloaded-event-for-code-triggering-its-pros-cons-when-to-use-it)
 - [Does DOMContentLoaded fire again if new DOM elements are added later?](#does-domcontentloaded-fire-again-if-new-dom-elements-are-added-later)
 - [What happens if you add a DOMContentLoaded listener after the event has already fired?](#what-happens-if-you-add-a-domcontentloaded-listener-after-the-event-has-already-fired)
 - [DOMContentLoaded vs window.onload](#domcontentloaded-vs-windowonload)
-- [If a page has no external resources, do DOMContentLoaded and onload fire at the same time?](#if-a-page-has-no-external-resources-do-domcontentloaded-and-onload-fire-at-the-same-time)
+- [DOMContentLoaded and Zero‑Resource Pages](#domcontentloaded-and-zeroresource-pages)
+- [DOMContentLoaded and CSS](#domcontentloaded-and-css)
+- [Describe a code snippet #4](#describe-a-code-snippet-4)
+- [DOMContentLoaded async/defer scripts](#domcontentloaded-asyncdefer-scripts)
+- [`DOMContentLoaded` and `window.onload` with Cached Resources](#domcontentloaded-and-windowonload-with-cached-resources)
+- [`DOMContentLoaded` and `window.onload` with iframes](#domcontentloaded-and-windowonload-with-iframes)
 - [Describe a real scenario where using window.onload is required and using DOMContentLoaded is insufficient](#describe-a-real-scenario-where-using-windowonload-is-required-and-using-domcontentloaded-is-insufficient)
 - [What happens when using window.onload for everything?](#what-happens-when-using-windowonload-for-everything)
 - [If a script is blocked by CSP, does DOMContentLoaded wait for it?](#if-a-script-is-blocked-by-csp-does-domcontentloaded-wait-for-it)
@@ -151,12 +159,45 @@ fetch("https://example.com")
 
 console.log("end");
 ```
-Output:
+Possible output (not guaranteed):
 ```text
 start
 end
 fetch-microtask
 timeout
+```
+
+**If the fetch takes longer, `setTimeout(..., 0)` callback (a macrotask) will likely 
+run before `fetch`’s `.then` (a microtask)**, because the microtask can’t be queued until `fetch` promise settles.
+**But there is no strict guarantee**: 
+whichever underlying task (timer firing vs. network response becoming available) happens first will determine the order.
+
+### How to make the order deterministic, first `setTimeout` macrotask and only then `.then` microtask?
+
+Instead of:
+```javascript
+setTimeout(() => console.log("timeout"), 0);
+
+fetch("https://example.com")
+  .then(() => console.log("fetch-microtask"));
+```
+Write:
+```javascript
+setTimeout(() => console.log("timeout"), 0);
+
+setTimeout(() => {
+  fetch("https://example.com")
+    .then(() => console.log("fetch-microtask"));
+}, 0);
+``
+```
+
+### How to make the order deterministic, first `.then` microtask and only then `setTimeout` macrotask?
+
+```javascript
+const p = fetch("https://example.com");
+p.finally(() => setTimeout(() => console.log("timeout"), 0));
+p.then(() => console.log("fetch-microtask"));
 ```
 
 ___ 
@@ -179,7 +220,24 @@ CSS loading can block JavaScript execution if:
 
 ### Does JS affect rendering?
 
-JS blocks DOM Construction (and rendering as a result) unless async/defer.
+**Yes, any JavaScript can affect rendering because JS runs on the main thread**.
+Even `defer` scripts can change the DOM or styles right before first paint, delaying or influencing rendering.
+The difference between script types is not _whether_ they can affect rendering, 
+but _when_ and _how severely_ they impact the rendering pipeline.
+
+Browser Rendering Pipeline:
+1. Parse HTML → Build DOM
+2. Parse CSS → Build CSSOM
+3. Combine DOM + CSSOM → Render Tree
+4. Layout (Reflow)
+5. Paint
+
+| Script type                                            | 1) DOM Construction                                                   | 2) CSSOM Construction                                                                               | 3) Render Tree                                                                    | 
+|--------------------------------------------------------|-----------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------|
+| 1. Synchronous `<script>` (no async/defer)             | **Blocks.**                                                           | **Can indirectly block.** If script needs style info and CSS isn’t loaded, browser waits for CSSOM. | **Can delay.** Delayed DOM/CSSOM delays render tree; mutations can invalidate it. |
+| 2. Scripts inside `DOMContentLoaded` / `window.onload` | **Does not block.** DOM fully built before these events.              | **Does not block.** For DOMContentLoaded, CSS may or may not be done; for onload, it is.            | **May affect.** DOM/style mutations invalidate render tree.                       |
+| 3. `async` scripts                                     | **Does not block parsing.** Can change DOM/styles before first paint. | **Does not block by default.** If executed before CSS is ready and needs styles, may wait for CSS.  | **Race‑dependent.** Early mutations can change pending render tree.               |
+| 4. `defer` scripts                                     | **Does not block parsing.** Can change DOM/styles before first paint. | **Waits for CSSOM** when required for consistent style state.                                       | **Predictable.** Runs post‑DOM; may modify render tree right before first paint.  |
 
 ### What does it mean when developers say "the DOM is ready"? How do you detect it?
 
@@ -215,13 +273,21 @@ Modules behave like `defer` by default.
 3. External script with defer
 4. External script with async
 
+| Script Type                          | When It Executes                           | Blocks HTML Parsing? | Execution Order Guaranteed? | DOM Ready When It Runs?   | 
+|--------------------------------------|--------------------------------------------|----------------------|-----------------------------|---------------------------|
+| Inline `<script>` in `<head>`        | Immediately when parser reaches it         | **Yes**              | Yes (source order)          | ❌ Usually not             |
+| Inline `<script>` at end of `<body>` | Immediately when parser reaches it         | **Yes** (briefly)    | Yes (source order)          | ✔️ Yes (DOM mostly built) |
+| External script with `defer`         | After HTML parse, before DOMContentLoaded  | ❌ No                 | ✔️ Yes (document order)     | ✔️ Yes                    |
+| External script with `async`         | As soon as downloaded (unpredictable time) | ❌ Download; ✔️ Exec  | ❌ No order                  | ❓ Maybe (not guaranteed)  |
 
-| Script Type                          | When It Executes                           | Blocks HTML Parsing? | Execution Order Guaranteed? | DOM Ready When It Runs?   | DOMContentLoaded Behavior |
-|--------------------------------------|--------------------------------------------|----------------------|-----------------------------|---------------------------|---------------------------|
-| Inline `<script>` in `<head>`        | Immediately when parser reaches it         | **Yes**              | Yes (source order)          | ❌ Usually not             | Delayed (parser blocked)  |
-| Inline `<script>` at end of `<body>` | Immediately when parser reaches it         | **Yes** (briefly)    | Yes (source order)          | ✔️ Yes (DOM mostly built) | Runs right before DCL     |
-| External script with `defer`         | After HTML parse, before DOMContentLoaded  | ❌ No                 | ✔️ Yes (document order)     | ✔️ Yes                    | DCL waits for all defer   |
-| External script with `async`         | As soon as downloaded (unpredictable time) | ❌ Download; ✔️ Exec  | ❌ No order                  | ❓ Maybe (not guaranteed)  | DCL does **not** wait     |
+### DOMContentLoaded Behavior and the scripts execution
+
+| Script Type                          | DOMContentLoaded Behavior |
+|--------------------------------------|---------------------------|
+| Inline `<script>` in `<head>`        | Delayed (parser blocked)  |
+| Inline `<script>` at end of `<body>` | Runs right before DCL     |
+| External script with `defer`         | DCL waits for all defer   |
+| External script with `async`         | DCL does **not** wait     |
 
 ### Describe a code snippet #3
 
@@ -318,7 +384,7 @@ script7
 3. Asyncs (script1, script2, script5) can run anytime after the currently running script completes, 
   independent of each other and independent of DOM readiness.
 
-### Does placing a <script> inside a <template> element block the DOM parser?
+### Does placing a `<script>` inside a `<template>` element block the DOM parser?
 
 **No.**
 Contents inside <template> aren’t executed; they’re inert DOM.
@@ -375,16 +441,17 @@ After EVERYTHING has loaded, including:
 When your code needs images or external resources to be fully loaded
 (e.g., calculating element sizes after images load).
 
-### Does window.onload always wait for CSS files? Fonts? Iframes? Videos?
+### Does window.onload always wait for CSS files? Images? Fonts? Iframes? Videos?
 
 **Yes for:**
 * CSS
-* Images
+* Images (if they are not lazy-loaded images (loading="lazy"))
 * Iframes
 * Scripts
 * Videos metadata
 
 **No for:**
+* **lazy-loaded images (loading="lazy")**
 * Fonts that load via `font-display: swap`
 * Media without preload
 * Prefetched resources
@@ -430,10 +497,66 @@ The event is not lost; it runs synchronously when added.
 Explains timing + practical use cases
 Mentions edge cases (CSS blocking, zero-resource pages)
 
-### If a page has no external resources, do DOMContentLoaded and onload fire at the same time?
+### DOMContentLoaded and Zero‑Resource Pages
 
-**Yes.**
-If there are literally no external loads (images, CSS, fonts), both fire almost simultaneously.
+Zero‑Resource Pages - pages that have no external resources, like:
+* No external scripts
+* No CSS files
+* No images
+* No fonts
+* No iframes
+
+- `DOMContentLoaded` fires almost immediately as soon as the DOM is parsed.
+- `window.onload` fires almost at the same time.
+
+### DOMContentLoaded and CSS
+
+CSS is not supposed to block `DOMContentLoaded` by itself.
+
+BUT CSS can delay DOMContentLoaded indirectly when scripts depend on it (on CSS):
+1. A <script> runs before CSS is loaded
+2. And that script needs style information (layout reads, style queries)
+3. Browser must wait for CSS to load → script execution is delayed
+4. DOM parsing cannot continue while the script is blocked
+5. So `DOMContentLoaded` is delayed as a side effect
+
+### Describe a code snippet #4
+
+```html
+<link rel="stylesheet" href="big.css">
+<script>console.log("hi")</script>
+```
+
+If the script **does not read layout**:
+* It executes even if CSS is not loaded
+* DOM parsing continues
+* DCL fires
+* CSS may still be loading
+
+### DOMContentLoaded async/defer scripts
+
+**async**
+* Can finish before DCL or after — unpredictable
+* Can push DCL later if it runs before HTML finishes parsing
+
+**defer**
+* Always run after DOM parsing
+* Before DCL
+* If slow → they push DCL
+* But DCL still does not wait for images
+
+### `DOMContentLoaded` and `window.onload` with Cached Resources
+
+* onload happens much earlier
+* DCL stays in the same spot
+
+So the gap between DCL and load shrinks dramatically.
+
+### `DOMContentLoaded` and `window.onload` with iframes
+
+Even if iframe not visible:
+* iframe `DOMContentLoaded` does not affect neither parent `DOMContentLoaded`, no parent `window.onload`
+* iframe `window.onload` does delay parent `window.onload`
 
 ### Describe a real scenario where using window.onload is required and using DOMContentLoaded is insufficient
 
@@ -446,6 +569,8 @@ If there are literally no external loads (images, CSS, fonts), both fire almost 
 It slows page.
 
 ### If a script is blocked by CSP, does DOMContentLoaded wait for it?
+
+CSP - Content Security Policy
 
 **No.**
 Blocked script is treated as if it failed instantly.

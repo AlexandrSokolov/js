@@ -1,69 +1,10 @@
-The JavaScript event loop
-- [Macro‑tasks in JS](#macrotasks-in-js)
-- [Micro-tasks in JS](#micro-tasks-in-js)
-- [The JavaScript event loop, what must you care about?](#the-javascript-event-loop-what-must-you-care-about)
-- [fetch’s networking, type of task](#fetchs-networking-type-of-task)
-- [Describe a code snippet #1](#describe-a-code-snippet-1)
-- [Describe a code snippet #2](#describe-a-code-snippet-2)
-- [How to make the order deterministic, first `setTimeout` macrotask and only then `.then` microtask?](#how-to-make-the-order-deterministic-first-settimeout-macrotask-and-only-then-then-microtask)
-- [How to make the order deterministic, first `.then` microtask and only then `setTimeout` macrotask?](#how-to-make-the-order-deterministic-first-then-microtask-and-only-then-settimeout-macrotask)
-
-Browser Rendering Behaviour
-- [Can CSS affect JS?](#can-css-affect-js)
-- [Does JS affect rendering?](#does-js-affect-rendering)
-- [What does it mean when developers say "the DOM is ready"? How do you detect it?](#what-does-it-mean-when-developers-say-the-dom-is-ready-how-do-you-detect-it)
-- [How does `<script>` impact page performance](#how-does-script-impact-page-performance)
-- [Module scripts, do they block HTML parsing?](#module-scripts-do-they-block-html-parsing)
-- [Module vs deferred scripts](#module-vs-deferred-scripts)
-- [What’s the difference in execution between the scripts](#whats-the-difference-in-execution-between-the-scripts)
-- [DOMContentLoaded Behavior and the scripts execution](#domcontentloaded-behavior-and-the-scripts-execution)
-- [Describe a code snippet #3](#describe-a-code-snippet-3)
-- [Does placing a `<script>` inside a `<template>` element block the DOM parser?](#does-placing-a-script-inside-a-template-element-block-the-dom-parser)
-- [If a script throws an error during execution, does the browser continue parsing HTML afterward?](#if-a-script-throws-an-error-during-execution-does-the-browser-continue-parsing-html-afterward)
-- [Does `await` inside top‑level ES modules block DOM parsing?](#does-await-inside-toplevel-es-modules-block-dom-parsing)
-- [Using `document.write()` in JavaScript code](#using-documentwrite-in-javascript-code)
-
-`window.onload` and `DOMContentLoaded`
-- [When does `window.onload = function (...) { ... }` run?](#when-does-windowonload--function-----run)
-- [The window onload event for code triggering, its pros, cons, when to use it?](#the-window-onload-event-for-code-triggering-its-pros-cons-when-to-use-it)
-- [Does window.onload always wait for CSS files? Images? Fonts? Iframes? Videos?](#does-windowonload-always-wait-for-css-files-images-fonts-iframes-videos)
-- [When does DOMContentLoaded event run?](#when-does-domcontentloaded-event-run)
-- [DOMContentLoaded event for code triggering, its pros, cons, when to use it?](#domcontentloaded-event-for-code-triggering-its-pros-cons-when-to-use-it)
-- [Does DOMContentLoaded fire again if new DOM elements are added later?](#does-domcontentloaded-fire-again-if-new-dom-elements-are-added-later)
-- [What happens if you add a DOMContentLoaded listener after the event has already fired?](#what-happens-if-you-add-a-domcontentloaded-listener-after-the-event-has-already-fired)
-- [DOMContentLoaded vs window.onload](#domcontentloaded-vs-windowonload)
-- [DOMContentLoaded and Zero‑Resource Pages](#domcontentloaded-and-zeroresource-pages)
-- [DOMContentLoaded and CSS](#domcontentloaded-and-css)
-- [Describe a code snippet #4](#describe-a-code-snippet-4)
-- [DOMContentLoaded async/defer scripts](#domcontentloaded-asyncdefer-scripts)
-- [`DOMContentLoaded` and `window.onload` with Cached Resources](#domcontentloaded-and-windowonload-with-cached-resources)
-- [`DOMContentLoaded` and `window.onload` with iframes](#domcontentloaded-and-windowonload-with-iframes)
-- [Describe a real scenario where using window.onload is required and using DOMContentLoaded is insufficient](#describe-a-real-scenario-where-using-windowonload-is-required-and-using-domcontentloaded-is-insufficient)
-- [What happens when using window.onload for everything?](#what-happens-when-using-windowonload-for-everything)
-- [If a script is blocked by CSP, does DOMContentLoaded wait for it?](#if-a-script-is-blocked-by-csp-does-domcontentloaded-wait-for-it)
-
-
-JS using by the caller
-- [What is an IIFE? How does execution timing differ from event‑based approaches?](#what-is-an-iife-how-does-execution-timing-differ-from-eventbased-approaches)
-- [When does IIFE run?](#when-does-iife-run)
-- [IIFE pros, cons, when to use it?](#iife-pros-cons-when-to-use-it)
-- [Can code inside an IIFE safely interact with DOM elements? Under what conditions?](#can-code-inside-an-iife-safely-interact-with-dom-elements-under-what-conditions)
-- [IIFE and DOM](#iife-and-dom)
-- [If you use an IIFE at the top of <head>, when exactly does it run relative to DOM parsing?](#if-you-use-an-iife-at-the-top-of-head-when-exactly-does-it-run-relative-to-dom-parsing)
-- [Can a Promise callback run before an IIFE that appears later in the same script?](#can-a-promise-callback-run-before-an-iife-that-appears-later-in-the-same-script)
-- [Explain the difference between async and defer when loading external scripts, when to use them?](#explain-the-difference-between-async-and-defer-when-loading-external-scripts-when-to-use-them)
-- [Which loads and executes first: async or defer?](#which-loads-and-executes-first-async-or-defer)
-- [When does deferred script run?](#when-does-deferred-script-run)
-- [Deferred script execution, pros, cons, when to use it?](#deferred-script-execution-pros-cons-when-to-use-it)
-- [Can you defer inline scripts?](#can-you-defer-inline-scripts)
-- []()
-- []()
-- []()
-- []()
-
 ## The JavaScript event loop
+<details>
+  <summary><strong>Show questions</strong></summary>
 
 ### Macro‑tasks in JS
+<details>
+  <summary>Show answer</summary>
 
 A macro‑task is a “normal async block of work”.
 * Macro‑tasks are big asynchronous operations. 
@@ -78,7 +19,11 @@ Common examples of macro‑tasks
 * I/O events (network, filesystem in Node)
 * MessageChannel (task in browsers)
 
+</details>
+
 ### Micro-tasks in JS
+<details>
+  <summary>Show answer</summary>
 
 A micro‑task is “I need to run ASAP, right after the current line of code, before anything else”.
 * Micro‑tasks run **immediately after the current JS execution finishes**, 
@@ -97,7 +42,11 @@ Common examples of micro‑tasks
 * queueMicrotask()
 * MutationObserver
 
+</details>
+
 ### The JavaScript event loop, what must you care about?
+<details>
+  <summary>Show answer</summary>
 
 You must understand how micro-tasks and macro-tasks affect rendering.
 
@@ -111,7 +60,11 @@ Each cycle of the JavaScript event loop looks like:
 Because micro-tasks run before the next macro‑task and before rendering, 
 micro‑tasks can delay rendering if you schedule too many.
 
+</details>
+
 ### fetch’s networking, type of task
+<details>
+  <summary>Show answer</summary>
 
 fetch’s networking is not a task. 
 
@@ -123,7 +76,14 @@ fetch’s networking is not a task.
    This is where your .then() runs.
    So the part that you write (the callback) is always a micro‑task.
 
+</details>
+
 ### Describe a code snippet #1
+<details>
+  <summary>Show details</summary>
+
+<details>
+  <summary>Show code</summary>
 
 ```javascript
 console.log("start");
@@ -138,6 +98,12 @@ Promise.resolve().then(() => {
 
 console.log("end");
 ```
+
+</details>
+
+<details>
+  <summary>Show answer</summary>
+
 Output:
 ```text
 start
@@ -147,7 +113,16 @@ macro
 ```
 “micro” runs before timers because micro‑tasks flush before the event loop picks the next macro‑task.
 
+</details>
+
+</details>
+
 ### Describe a code snippet #2
+<details>
+  <summary>Show details</summary>
+
+<details>
+  <summary>Show code</summary>
 
 ```javascript
 console.log("start");
@@ -159,6 +134,12 @@ fetch("https://example.com")
 
 console.log("end");
 ```
+
+</details>
+
+<details>
+  <summary>Show answer</summary>
+
 Possible output (not guaranteed):
 ```text
 start
@@ -172,7 +153,13 @@ run before `fetch`’s `.then` (a microtask)**, because the microtask can’t be
 **But there is no strict guarantee**: 
 whichever underlying task (timer firing vs. network response becoming available) happens first will determine the order.
 
+</details>
+
+</details>
+
 ### How to make the order deterministic, first `setTimeout` macrotask and only then `.then` microtask?
+<details>
+  <summary>Show answer</summary>
 
 Instead of:
 ```javascript
@@ -192,7 +179,11 @@ setTimeout(() => {
 ``
 ```
 
+</details>
+
 ### How to make the order deterministic, first `.then` microtask and only then `setTimeout` macrotask?
+<details>
+  <summary>Show answer</summary>
 
 ```javascript
 const p = fetch("https://example.com");
@@ -200,11 +191,21 @@ p.finally(() => setTimeout(() => console.log("timeout"), 0));
 p.then(() => console.log("fetch-microtask"));
 ```
 
-___ 
+___
+
+</details>
+
+</details>
+
+---
 
 ## Browser Rendering Behaviour
+<details>
+  <summary><strong>Show questions</strong></summary>
 
 ### Can CSS affect JS?
+<details>
+  <summary>Show answer</summary>
 
 Browser loads and parses all CSS -> builds the CSS Object Model. 
 CSS is render‑blocking. 
@@ -218,7 +219,11 @@ CSS loading can block JavaScript execution if:
 * The browser defers execution to avoid forced reflow
   CSS is **render‑blocking**, and JS often interacts with layout.
 
+</details>
+
 ### Does JS affect rendering?
+<details>
+  <summary>Show answer</summary>
 
 **Yes, any JavaScript can affect rendering because JS runs on the main thread**.
 Even `defer` scripts can change the DOM or styles right before first paint, delaying or influencing rendering.
@@ -239,20 +244,32 @@ Browser Rendering Pipeline:
 | 3. `async` scripts                                     | **Does not block parsing.** Can change DOM/styles before first paint. | **Does not block by default.** If executed before CSS is ready and needs styles, may wait for CSS.  | **Race‑dependent.** Early mutations can change pending render tree.               |
 | 4. `defer` scripts                                     | **Does not block parsing.** Can change DOM/styles before first paint. | **Waits for CSSOM** when required for consistent style state.                                       | **Predictable.** Runs post‑DOM; may modify render tree right before first paint.  |
 
+</details>
+
 ### What does it mean when developers say "the DOM is ready"? How do you detect it?
+<details>
+  <summary>Show answer</summary>
 
 * DOM tree is built
 * Doesn’t require images/fonts
 * Achieved via DOMContentLoaded or deferred script
 
+</details>
+
 ### How does `<script>` impact page performance
+<details>
+  <summary>Show answer</summary>
 
 * Every blocking script stops HTML parsing unless async/defer
 * Defer is recommended for most cases
 * Async avoids blocking but risks execution disorder
 * Inline scripts run immediately and always block
 
+</details>
+
 ### Module scripts, do they block HTML parsing?
+<details>
+  <summary>Show answer</summary>
 
 You use module scripts when you include a `<script type="module">`
 Do they block HTML parsing?
@@ -260,13 +277,21 @@ Do they block HTML parsing?
 Modules behave like `defer` by default:
 * Download in parallel - Async loading but deferred execution
 * Execute after DOM parse
-* Do not block 
+* Do not block
+
+</details>
 
 ### Module vs deferred scripts
+<details>
+  <summary>Show answer</summary>
 
 Modules behave like `defer` by default.
 
+</details>
+
 ### What’s the difference in execution between the scripts
+<details>
+  <summary>Show answer</summary>
 
 1. Inline `<script>` in <head>
 2. Inline `<script>` at bottom of body
@@ -280,7 +305,11 @@ Modules behave like `defer` by default.
 | External script with `defer`         | After HTML parse, before DOMContentLoaded  | ❌ No                 | ✔️ Yes (document order)     | ✔️ Yes                    |
 | External script with `async`         | As soon as downloaded (unpredictable time) | ❌ Download; ✔️ Exec  | ❌ No order                  | ❓ Maybe (not guaranteed)  |
 
+</details>
+
 ### DOMContentLoaded Behavior and the scripts execution
+<details>
+  <summary>Show answer</summary>
 
 | Script Type                          | DOMContentLoaded Behavior |
 |--------------------------------------|---------------------------|
@@ -289,7 +318,14 @@ Modules behave like `defer` by default.
 | External script with `defer`         | DCL waits for all defer   |
 | External script with `async`         | DCL does **not** wait     |
 
+</details>
+
 ### Describe a code snippet #3
+<details>
+  <summary>Show details</summary>
+
+<details>
+  <summary>Show code</summary>
 
 ```html
 <!DOCTYPE html>
@@ -331,6 +367,11 @@ Modules behave like `defer` by default.
 </body>
 </html>
 ```
+
+</details>
+
+<details>
+  <summary>Show answer</summary>
 
 Each non-module script just writes its name into console. For instance `script_1.js`:
 ```javascript
@@ -384,25 +425,43 @@ script7
 3. Asyncs (script1, script2, script5) can run anytime after the currently running script completes, 
   independent of each other and independent of DOM readiness.
 
+</details>
+
+</details>
+
 ### Does placing a `<script>` inside a `<template>` element block the DOM parser?
+<details>
+  <summary>Show answer</summary>
 
 **No.**
-Contents inside <template> aren’t executed; they’re inert DOM.
+Contents inside `<template>` aren’t executed; they’re inert DOM.
 Scripts inside templates don’t run until extracted.
 
+</details>
+
 ### If a script throws an error during execution, does the browser continue parsing HTML afterward?
+<details>
+  <summary>Show answer</summary>
 
 **Yes.**
 A JS runtime error does **not** stop HTML parsing.
-Only fatal parser errors (rare malformed <script> tags) stop parsing.
+Only fatal parser errors (rare malformed `<script>` tags) stop parsing.
+
+</details>
 
 ### Does `await` inside top‑level ES modules block DOM parsing?
+<details>
+  <summary>Show answer</summary>
 
 **No.**
 HTML parsing does not wait for async module execution.
 The module executes after download, but top‑level await only blocks **the module’s export availability**, not DOM creation.
 
+</details>
+
 ### Using `document.write()` in JavaScript code
+<details>
+  <summary>Show answer</summary>
 
 `document.write()` breaks execution flow
 
@@ -413,9 +472,19 @@ The module executes after download, but top‑level await only blocks **the modu
 
 ---
 
+</details>
+
+</details>
+
+---
+
 ## `onload` and DOMContentLoaded
+<details>
+  <summary><strong>Show questions</strong></summary>
 
 ### When does `window.onload = function (...) { ... }` run?
+<details>
+  <summary>Show answer</summary>
 
 After EVERYTHING has loaded, including:
 * DOM
@@ -425,7 +494,11 @@ After EVERYTHING has loaded, including:
 * Iframes
 * Videos
 
+</details>
+
 ### The window onload event for code triggering, its pros, cons, when to use it?
+<details>
+  <summary>Show answer</summary>
 
 **Pros**
 * Guarantees the whole page is ready
@@ -441,7 +514,11 @@ After EVERYTHING has loaded, including:
 When your code needs images or external resources to be fully loaded
 (e.g., calculating element sizes after images load).
 
+</details>
+
 ### Does window.onload always wait for CSS files? Images? Fonts? Iframes? Videos?
+<details>
+  <summary>Show answer</summary>
 
 **Yes for:**
 * CSS
@@ -456,7 +533,11 @@ When your code needs images or external resources to be fully loaded
 * Media without preload
 * Prefetched resources
 
+</details>
+
 ### When does DOMContentLoaded event run?
+<details>
+  <summary>Show answer</summary>
 
 When the DOM tree is fully parsed, **but before**:
 * Images
@@ -464,7 +545,11 @@ When the DOM tree is fully parsed, **but before**:
 * Videos
 * Stylesheets
 
+</details>
+
 ### DOMContentLoaded event for code triggering, its pros, cons, when to use it?
+<details>
+  <summary>Show answer</summary>
 
 **Pros**
 * Fires earlier than window.onload
@@ -477,18 +562,30 @@ When the DOM tree is fully parsed, **but before**:
 * Almost always for UI logic
 * When you only need the DOM structure, not images
 
+</details>
+
 ### Does DOMContentLoaded fire again if new DOM elements are added later?
+<details>
+  <summary>Show answer</summary>
 
 No.
 `DOMContentLoaded` fires exactly once, when the initial HTML has been parsed.
 Mutating the DOM later does not retrigger lifecycle events.
 
+</details>
+
 ### What happens if you add a DOMContentLoaded listener after the event has already fired?
+<details>
+  <summary>Show answer</summary>
 
 **It will execute immediately.**
 The event is not lost; it runs synchronously when added.
 
+</details>
+
 ### DOMContentLoaded vs window.onload
+<details>
+  <summary>Show answer</summary>
 
 * DOMContentLoaded = DOM parsed
 * onload = all resources loaded
@@ -497,7 +594,11 @@ The event is not lost; it runs synchronously when added.
 Explains timing + practical use cases
 Mentions edge cases (CSS blocking, zero-resource pages)
 
+</details>
+
 ### DOMContentLoaded and Zero‑Resource Pages
+<details>
+  <summary>Show answer</summary>
 
 Zero‑Resource Pages - pages that have no external resources, like:
 * No external scripts
@@ -509,23 +610,39 @@ Zero‑Resource Pages - pages that have no external resources, like:
 - `DOMContentLoaded` fires almost immediately as soon as the DOM is parsed.
 - `window.onload` fires almost at the same time.
 
+</details>
+
 ### DOMContentLoaded and CSS
+<details>
+  <summary>Show answer</summary>
 
 CSS is not supposed to block `DOMContentLoaded` by itself.
 
 BUT CSS can delay DOMContentLoaded indirectly when scripts depend on it (on CSS):
-1. A <script> runs before CSS is loaded
+1. A `<script>` runs before CSS is loaded
 2. And that script needs style information (layout reads, style queries)
 3. Browser must wait for CSS to load → script execution is delayed
 4. DOM parsing cannot continue while the script is blocked
 5. So `DOMContentLoaded` is delayed as a side effect
 
+</details>
+
 ### Describe a code snippet #4
+<details>
+  <summary>Show details</summary>
+
+<details>
+  <summary>Show code</summary>
 
 ```html
 <link rel="stylesheet" href="big.css">
 <script>console.log("hi")</script>
 ```
+
+</details>
+
+<details>
+  <summary>Show answer</summary>
 
 If the script **does not read layout**:
 * It executes even if CSS is not loaded
@@ -533,7 +650,13 @@ If the script **does not read layout**:
 * DCL fires
 * CSS may still be loading
 
+</details>
+
+</details>
+
 ### DOMContentLoaded async/defer scripts
+<details>
+  <summary>Show answer</summary>
 
 **async**
 * Can finish before DCL or after — unpredictable
@@ -545,30 +668,50 @@ If the script **does not read layout**:
 * If slow → they push DCL
 * But DCL still does not wait for images
 
+</details>
+
 ### `DOMContentLoaded` and `window.onload` with Cached Resources
+<details>
+  <summary>Show answer</summary>
 
 * onload happens much earlier
 * DCL stays in the same spot
 
 So the gap between DCL and load shrinks dramatically.
 
+</details>
+
 ### `DOMContentLoaded` and `window.onload` with iframes
+<details>
+  <summary>Show answer</summary>
 
 Even if iframe not visible:
 * iframe `DOMContentLoaded` does not affect neither parent `DOMContentLoaded`, no parent `window.onload`
 * iframe `window.onload` does delay parent `window.onload`
 
+</details>
+
 ### Describe a real scenario where using window.onload is required and using DOMContentLoaded is insufficient
+<details>
+  <summary>Show answer</summary>
 
 * Measuring final image dimensions
 * Canvas sizing after load
 * Layout depending on external font load (unless font‑loading API used)
 
+</details>
+
 ### What happens when using window.onload for everything?
+<details>
+  <summary>Show answer</summary>
 
 It slows page.
 
+</details>
+
 ### If a script is blocked by CSP, does DOMContentLoaded wait for it?
+<details>
+  <summary>Show answer</summary>
 
 CSP - Content Security Policy
 
@@ -578,19 +721,39 @@ DOMContentLoaded does not wait.
 
 ---
 
+</details>
+
+</details>
+
+---
+
 ## JS using by the caller
+<details>
+  <summary><strong>Show questions</strong></summary>
 
 ### What is an IIFE? How does execution timing differ from event‑based approaches?
+<details>
+  <summary>Show answer</summary>
+
+IIFE - Immediately Invoked Function Expression.
 
 * Runs immediately at parse time
 * DOM may not exist yet
 * Good for scoping, modules, initialization logic that doesn’t depend on the DOM
 
+</details>
+
 ### When does IIFE run?
+<details>
+  <summary>Show answer</summary>
 
 **Immediately**, as soon as the `<script>` tag is executed.
 
+</details>
+
 ### IIFE pros, cons, when to use it?
+<details>
+  <summary>Show answer</summary>
 
 **Pros**
 * Runs instantly
@@ -608,29 +771,49 @@ DOMContentLoaded does not wait.
 * Configure library behavior
 * Avoid global variable leaks
 
-### Can code inside an IIFE safely interact with DOM elements? Under what conditions?
+</details>
 
-* Only if script is placed after DOM elements or loaded with defer
-* Otherwise requires DOMContentLoaded
+### Can code inside an IIFE safely interact with DOM elements?
+<details>
+  <summary>Show answer</summary>
+
+**Yes** — code inside an IIFE can safely interact with DOM elements, 
+as long as the IIFE runs after the elements exist in the DOM.
+
+</details>
 
 ### IIFE and DOM
+<details>
+  <summary>Show answer</summary>
 
 IIFE does not wait DOM. When DOM is needed place `<script>` at the end of `<body>`.
 
+</details>
+
 ### If you use an IIFE at the top of <head>, when exactly does it run relative to DOM parsing?
+<details>
+  <summary>Show answer</summary>
 
 **Immediately during parsing of the <head>, before any body parsing happens.**
 - HTML parsing stops while the script runs.
 - DOM is usually incomplete at that moment.
 
+</details>
+
 ### Can a Promise callback run before an IIFE that appears later in the same script?
+<details>
+  <summary>Show answer</summary>
 
 **No.**
 Script executes top‑down:
 * IIFE executes immediately
 * Only after script finishes do microtasks run (promise callbacks)
 
+</details>
+
 ### Explain the difference between async and defer when loading external scripts, when to use them?
+<details>
+  <summary>Show answer</summary>
 
 * async = runs immediately after download, unpredictable order
 * defer = ordered, waits until DOM parse finishes and only then runs
@@ -639,9 +822,16 @@ Use them:
 * async: analytics, ads, third‑party scripts
 * defer: core app scripts, modules
 
-### Which loads and executes first: async or defer?
+</details>
 
-**async always wins if it downloads first.**
+### Which loads and executes first: async or defer?
+<details>
+  <summary>Show answer</summary>
+
+It depends.
+- **async always wins if it downloads first.**
+- If the async script takes a long time to download, the defer script will still run before it.
+
 Order:
 * async runs ASAP (before or after parsing)
 * defer waits until DOM parse finishes
@@ -649,13 +839,21 @@ Order:
 - Async ignores order.
 - Defer preserves order.
 
+</details>
+
 ### When does deferred script run?
+<details>
+  <summary>Show answer</summary>
 
 * Runs after HTML is parsed
 * Runs before DOMContentLoaded
 * Scripts keep execution order
 
+</details>
+
 ### Deferred script execution, pros, cons, when to use it?
+<details>
+  <summary>Show answer</summary>
 
 **Pros**
 * Best for page performance (never block the page)
@@ -669,12 +867,27 @@ None really.
 
 For most modern apps, using `<script defer>` is the best practice.
 
+</details>
+
 ### Can a script with defer block rendering?
+<details>
+  <summary>Show answer</summary>
 
-**No.**
-Deferred scripts do not block rendering or parsing.
+**A defer script can block rendering, but not in the same way a normal synchronous `<script>` blocks rendering.**
 
-### If you include three <script defer> tags, what determines their execution order? What could break that order?
+A defer script does not block HTML parsing (like synchronous `<script>` do), but it can block rendering, because:
+- defer scripts run before the first paint (usually)
+- They run before DOMContentLoaded
+- Rendering (paint) cannot occur while JavaScript is executing
+- defer scripts can mutate DOM or styles, forcing extra layout before paint
+
+So: they can delay first paint, even though they don’t block HTML parsing.
+
+</details>
+
+### If you include three `<script defer>` tags, what determines their execution order? What could break that order?
+<details>
+  <summary>Show answer</summary>
 
 **Their order in the HTML determines execution.**
 What can break it?
@@ -683,7 +896,12 @@ What can break it?
 * Network error → script never executes
 * Extremely slow download (can delay execution but not re‑order)
 
+</details>
+
 ### In which situations can a deferred script run BEFORE DOMContentLoaded, and when can it run AFTER?
+<details>
+  <summary>Show answer</summary>
+
 **Normally defer runs before DOMContentLoaded.**
 But it can run after if:
 * The deferred script downloads slowly
@@ -692,7 +910,11 @@ But it can run after if:
   Guarantee:
   **Defer runs before DOMContentLoaded, unless download finishes late.**
 
+</details>
+
 ### Can you defer inline scripts?
+<details>
+  <summary>Show answer</summary>
 
 `defer` doesn’t work for inline scripts, 
 you can achieve the same effect by wrapping your code inside the DOMContentLoaded event listener:
@@ -704,14 +926,21 @@ you can achieve the same effect by wrapping your code inside the DOMContentLoade
 </script>
 ```
 
+</details>
 
 ### When does `async` JavaScript run?
+<details>
+  <summary>Show answer</summary>
 
 * As soon as the script downloads
 * Execution order is NOT guaranteed
 * Does not block rendering
 
+</details>
+
 ### `async` JavaScript pros, cons, when to use it?
+<details>
+  <summary>Show answer</summary>
 
 Pros
 * Ideal for scripts that don't depend on others
@@ -726,7 +955,11 @@ When to use
 * Widgets
 * Scripts without dependencies
 
+</details>
+
 ### Which runs first: an `async` script or a `DOMContentLoaded` handler? Under what conditions does the order change?
+<details>
+  <summary>Show answer</summary>
 
 **It depends on download timing.**
 Async script runs **when ready**.
@@ -734,19 +967,30 @@ Async script runs **when ready**.
 - If downloads slowly, it can run **after** DOMContentLoaded.
 This is why async is unsafe for dependencies.
 
+</details>
+
 ### Does async guarantee that the DOM is fully parsed before the script runs?
+<details>
+  <summary>Show answer</summary>
 
 **No.**
 `async` scripts execute as soon as the file downloads, which can be before, during, or after DOM parsing.
 Execution order is **unpredictable**.
 
+</details>
 
 ### When does body-end inline script run?
+<details>
+  <summary>Show answer</summary>
 
 - After all DOM content above is parsed
 - Equivalent to `DOMContentLoaded` for everything above it
 
+</details>
+
 ### Body-end inline script, pros and cons
+<details>
+  <summary>Show answer</summary>
 
 Pros
 * Predictable
@@ -757,7 +1001,11 @@ Cons
 * Mixing HTML + JS considered bad practice today
 * Harder to maintain
 
+</details>
+
 ### If a script is placed at the end of <body>, does it always guarantee DOM availability? Why or why not?
+<details>
+  <summary>Show answer</summary>
 
 **Usually yes, but not always.**
 
@@ -768,73 +1016,82 @@ Possible exceptions:
 
 But **normally**, bottom‑of‑body means **safe access to all previous DOM nodes**.
 
-
-
-
-
+</details>
 
 ### What happens when using `async` for scripts that depend on others?
+<details>
+  <summary>Show answer</summary>
 
 Race conditions
 
-### Explain the difference between `window.onload` and `DOMContentLoaded`. When does each fire? What does each wait for?
-
-* DOMContentLoaded fires when DOM is parsed
-* window.onload fires when all resources (images, fonts, iframes) finished loading
-* Performance implications of choosing one or the other
-
-### What happens when the browser encounters a <script> tag during HTML parsing?
-
-* Parsing halts
-* Script executes immediately (unless async/defer)
-* DOM stops building
-
-### dynamic script insertion
-
-Behaves like async
-Executes immediately after load
-No guarantee of order
-Red flag: thinks dynamic defer exists (it does not).
+</details>
 
 ### If you dynamically insert x.js into the DOM, does it behave like async, defer, or something else?
+<details>
+  <summary>Show answer</summary>
 
-**It behaves like async.**
-Dynamic external scripts always execute immediately after download, in no guaranteed order.
+* Behaves like async.
+* Executes immediately after load
+* No guarantee of order
 
-### If you dynamically create a <script defer> element, does it behave like a real defer script?
+</details>
+
+### Dynamic defer scripts
+<details>
+  <summary>Show answer</summary>
+
+Not possible. You can’t give a dynamically created classic `<script>` true defer semantics.
+Dynamic classic scripts are treated as async by default (because they’re not parser‑inserted), 
+and setting `defer` on them doesn’t make them “run after parsing, in order” like real deferred scripts.
+Red flag to think dynamic defer exists (it does not).
+
+</details>
+
+### How it works if you dynamically create a `<script defer>` element?
+<details>
+  <summary>Show answer</summary>
 
 **No.**
 Dynamic scripts ignore `defer`, behaving like `async`.
 
-### Does the browser guarantee that an inline script runs after all preceding DOM nodes are created?
-
-**Yes.**
-Inline scripts run exactly when the parser reaches them, meaning DOM nodes up to that point exist.
-
-
-### Does an async script block other async scripts? What about defer? Inline?
-
-* Async: No, completely independent.
-* Defer: Yes — defer scripts maintain HTML order.
-* Inline: Inline scripts block parsing and delay both async and defer execution until they finish.
+</details>
 
 ### Does adding await inside an IIFE affect when the outer script finishes?
+<details>
+  <summary>Show answer</summary>
 
+todo
 **Yes.**
 The outer script finishes parsing immediately, but the async IIFE continues in microtasks later.
 The script tag completes, but the IIFE does not.
 
+Putting `await` inside an async IIFE does not delay the outer script’s completion or DOM parsing. 
+The IIFE starts, hits `await`, yields back to the event loop, and the rest of the outer script runs immediately. 
+The awaited continuation runs later (as a microtask) when the promise settles.
+
+</details>
+
 ### In a module script, when does top‑level code run relative to DOMContentLoaded and defer scripts?
+<details>
+  <summary>Show answer</summary>
 
 **After DOM is parsed, before DOMContentLoaded.**
 Modules behave like defer by default.
 
+</details>
+
 ### Why does inline script inside <body> run even if async is set on other scripts?
+<details>
+  <summary>Show answer</summary>
 
 Async affects external scripts only.
 Inline scripts always execute immediately when parsed.
 
-## What JS execution way to choose:
+</details>
+
+### What JS execution way to choose
+<details>
+  <summary>Show answer</summary>
 
 #### to avoid global variable leaks
 
@@ -868,7 +1125,11 @@ Inline scripts always execute immediately when parsed.
 
 - [`async` JavaScript](JS_Code_Execution.md#async-javascript)
 
+</details>
+
 ### Evaluate this code’s execution order — explain why
+<details>
+  <summary>Show answer</summary>
 
 ```html
 <script>
@@ -889,39 +1150,63 @@ Inline scripts always execute immediately when parsed.
 * defer script c.js executes after DOM parse
 * “D” executes immediately
 
+</details>
+
 ### sandboxed iframes
+<details>
+  <summary>Show answer</summary>
 
 sandbox="allow-scripts" → no DOM access
 origin = “null”
 postMessage needed
 Red flag: thinks sandbox affects execution timing.
 
+</details>
+
 ### How does JavaScript behave differently inside a sandboxed iframe (sandbox="allow-scripts")?
+<details>
+  <summary>Show answer</summary>
 
 * Origin becomes “null”
 * Script executes normally but with limitations
 * No access to parent DOM
 * postMessage is necessary
 
+</details>
+
 ### Why does an inline script inside a sandboxed iframe still execute immediately?
+<details>
+  <summary>Show answer</summary>
 
 * Sandbox affects capabilities, not timing
 * Execution order still follows HTML parsing rules
 
+</details>
+
 ### Does a sandboxed iframe affect JavaScript execution timing? Or only capabilities?
+<details>
+  <summary>Show answer</summary>
 
 **Only capabilities.**
 Timing is unaffected.
 Sandbox does not change parsing or execution order.
 
-### Does a <script> in an iframe load faster or slower than the same script on the parent page?
+</details>
+
+### Does a `<script>` in an iframe load faster or slower than the same script on the parent page?
+<details>
+  <summary>Show answer</summary>
 
 **Often slower.** Because:
 * Browsers deprioritize iframe network requests
 * Preload scanner is less aggressive inside iframes
 * Sandbox reduces heuristics
 
+</details>
+
 ### Ability to reason through trick edge cases
+<details>
+  <summary>Show answer</summary>
 
 Examples:
 async vs DOMContentLoaded races
@@ -930,21 +1215,40 @@ inline + async interactions
 dynamically inserted scripts
 Red flag: guesses instead of reasoning.
 
+</details>
+
 ### Understanding postMessage security
+<details>
+  <summary>Show answer</summary>
+
 Expected:
 Must validate event.origin
 Knows opaque origins (“null”)
 Understands no DOM/JS access
 Red flag: using * without validation.
 
-### Write code that waits for DOM to be ready without using any event listeners.
+</details>
 
-1. Using <script defer>
-2. Using <script type="module">
-3. Placing script at bottom of <body>
+### Write code that waits for DOM to be ready without using any event listeners.
+<details>
+  <summary>Show answer</summary>
+
+1. Using `<script defer>`
+2. Using `<script type="module">`
+3. Placing script at bottom of `<body>`
+
+</details>
 
 ### Write code that guarantees execution only after all images finish loading
+<details>
+  <summary>Show answer</summary>
 
 1. window.onload
 2. Promises with img.onload
+
+</details>
+
+</details>
+
+---
 

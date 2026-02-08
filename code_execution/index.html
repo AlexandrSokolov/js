@@ -1,0 +1,231 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>JS Trigger Demo – Quick Recall</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 2rem; line-height: 1.5; }
+    .case { border: 1px solid #ddd; padding: 1rem; border-radius: 8px; margin: 1rem 0; }
+    .case h2 { margin: 0 0 .5rem 0; font-size: 1.1rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; }
+    #vlog { border: 1px dashed #999; padding: .5rem .75rem; border-radius: 6px; max-height: 40vh; overflow: auto; background: #fafafa; }
+    .tag { display: inline-block; font-size: .75rem; padding: .15rem .4rem; border-radius: 999px; background: #eef; color: #334; margin-left: .5rem; }
+    button { padding: .45rem .7rem; border-radius: 6px; border: 1px solid #ccc; background: #fff; cursor: pointer; }
+    button:hover { background: #f6f6ff; }
+    pre { white-space: pre-wrap; background: #f8f8f8; padding: .5rem; border-radius: 6px; }
+
+    /* Option #3: styles for inline iframe previews */
+    details.case-iframe { margin: 8px 0 14px; border: 1px solid #e2e2e2; border-radius: 6px; background: #fafafa; padding: 6px 8px 10px; }
+    details.case-iframe > summary { cursor: pointer; font-weight: 600; outline: none; }
+    .case-iframe__bar { display: flex; gap: 10px; align-items: center; margin: 6px 0 8px; font-size: 12px; color: #555; flex-wrap: wrap; }
+    .case-iframe__bar a { text-decoration: none; color: #005bd4; }
+    .case-iframe__bar button { border: 1px solid #ccc; background: #fff; cursor: pointer; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+    .case-iframe__frame { width: 100%; border: 1px solid #ddd; border-radius: 6px; background: #fff; }
+  </style>
+
+  <!-- CASE 2 in head -->
+  <script defer src="./scripts/defer-head.js"></script>
+  <!-- CASE 3 in head -->
+  <script async src="./scripts/async-head.js"></script>
+  <!-- CASE 9 module entry -->
+  <script type="module" src="./scripts/module-entry.js"></script>
+
+  <script>
+    // Shared helpers
+    (function() {
+      function stamp(label) {
+        const t = new Date().toLocaleTimeString();
+        console.log(label);
+        const el = document.getElementById('vlog');
+        if (el) {
+          const item = document.createElement('div');
+          item.textContent = `[${t}] ${label}`;
+          el.appendChild(item);
+        }
+      }
+      window.__demo = { stamp };
+    })();
+  </script>
+</head>
+<body>
+  <h1>JavaScript Trigger Demo <span class="tag">open console</span></h1>
+  <p>Quickly compare how/when each pattern runs. Scroll, click buttons, and read per-case notes above each script tag in the source.</p>
+
+  <div class="grid">
+    <div class="case" data-case-src="./cases/01-inline-end-body.html">
+      <h2>CASE 1 – Inline <code>&lt;script&gt;</code> at end of body</h2>
+      <p>Executes immediately when parser reaches it (here: after DOM elements above it exist).</p>
+    </div>
+
+    <div class="case" data-case-src="./cases/02-defer-head.html">
+      <h2>CASE 2 – <code>&lt;script defer&gt;</code> in head</h2>
+      <p>Loads in parallel; runs after DOM parsed, order-preserving.</p>
+    </div>
+
+    <div class="case" data-case-src="./cases/03-async-head.html">
+      <h2>CASE 3 – <code>&lt;script async&gt;</code> in head</h2>
+      <p>Runs as soon as download completes; order not guaranteed.</p>
+    </div>
+
+    <div class="case" data-case-src="./cases/04-external-body.html" data-case-height="280">
+      <h2>CASE 4 – External script in body (no defer/async)</h2>
+      <button id="btn-ext">Click to define handler (script loads below)</button>
+    </div>
+
+    <div class="case" data-case-src="./cases/05-domcontentloaded.html" data-case-height="260">
+      <h2>CASE 5 – DOMContentLoaded</h2>
+      <button id="btn-dcl">Attach DCL listener (fires once when DOM ready)</button>
+    </div>
+
+    <div class="case" data-case-src="./cases/06-window-load.html" data-case-height="260">
+      <h2>CASE 6 – window.load</h2>
+      <button id="btn-load">Attach load listener (fires after all assets)</button>
+    </div>
+
+    <div class="case" data-case-src="./cases/07-inline-attributes.html" data-case-height="240">
+      <h2>CASE 7 – HTML event attributes</h2>
+      <button onclick="__demo.stamp('CASE 7: inline onclick fired')">Inline onclick</button>
+    </div>
+
+    <div class="case" data-case-src="./cases/08-addEventListener.html" data-case-height="240">
+      <h2>CASE 8 – addEventListener</h2>
+      <button id="btn-ael">Click me</button>
+    </div>
+
+    <div class="case" data-case-src="./cases/09-modules.html" data-case-height="300">
+      <h2>CASE 9 – Module import</h2>
+      <button id="btn-module">Call imported function</button>
+    </div>
+
+    <div class="case" data-case-src="./cases/10-dynamic-injection.html" data-case-height="280">
+      <h2>CASE 10 – Dynamic script injection</h2>
+      <button id="btn-inject">Inject and run</button>
+    </div>
+
+    <div class="case" data-case-src="./cases/11-iife.html" data-case-height="240">
+      <h2>CASE 11 – IIFE</h2>
+      <p>Runs immediately upon definition; used to isolate scope.</p>
+    </div>
+
+    <div class="case" data-case-src="./cases/12-timeout.html" data-case-height="240">
+      <h2>CASE 12 – setTimeout</h2>
+      <button id="btn-timeout">Schedule 0ms timeout</button>
+    </div>
+
+    <div class="case" data-case-src="./cases/13-promise.html" data-case-height="240">
+      <h2>CASE 13 – Promise microtask</h2>
+      <button id="btn-promise">Queue microtask</button>
+    </div>
+  </div>
+
+  <h3>Visual Log</h3>
+  <div id="vlog" aria-live="polite"></div>
+
+  <!-- CASE 4 external script in body -->
+  <script src="./scripts/external-body.js"></script>
+
+  <!-- CASE 5: DOMContentLoaded -->
+  <script>
+    document.getElementById('btn-dcl').addEventListener('click', () => {
+      document.addEventListener('DOMContentLoaded', () => __demo.stamp('CASE 5: DOMContentLoaded fired'));
+      __demo.stamp('CASE 5: listener attached');
+    });
+  </script>
+
+  <!-- CASE 6: window.load -->
+  <script>
+    document.getElementById('btn-load').addEventListener('click', () => {
+      window.addEventListener('load', () => __demo.stamp('CASE 6: window.load fired'));
+      __demo.stamp('CASE 6: listener attached');
+    });
+  </script>
+
+  <!-- CASE 8: addEventListener -->
+  <script>
+    document.getElementById('btn-ael').addEventListener('click', () => __demo.stamp('CASE 8: addEventListener click'));
+  </script>
+
+  <!-- CASE 10: dynamic injection -->
+  <script>
+    document.getElementById('btn-inject').addEventListener('click', () => {
+      const s = document.createElement('script');
+      s.src = './scripts/injected.js';
+      s.onload = () => __demo.stamp('CASE 10: injected script loaded & executed');
+      document.head.appendChild(s);
+    });
+  </script>
+
+  <!-- CASE 11: IIFE -->
+  <script>
+    (function() { __demo.stamp('CASE 11: IIFE ran immediately'); })();
+  </script>
+
+  <!-- CASE 12: setTimeout -->
+  <script>
+    document.getElementById('btn-timeout').addEventListener('click', () => {
+      setTimeout(() => __demo.stamp('CASE 12: setTimeout(0) executed'), 0);
+      __demo.stamp('CASE 12: scheduled setTimeout(0)');
+    });
+  </script>
+
+  <!-- CASE 13: Promise microtask -->
+  <script>
+    document.getElementById('btn-promise').addEventListener('click', () => {
+      Promise.resolve().then(() => __demo.stamp('CASE 13: Promise microtask executed'));
+      __demo.stamp('CASE 13: queued Promise microtask');
+    });
+  </script>
+
+  <!-- CASE 1 inline at end of body -->
+  <script>
+    __demo.stamp('CASE 1: inline <script> at end of body executed');
+  </script>
+
+  <!-- Option #3 injector: add collapsible iframe previews for each case -->
+  <script type="module">
+    (() => {
+      const cases = document.querySelectorAll('[data-case-src]');
+      for (const host of cases) {
+        const src = host.getAttribute('data-case-src');
+        if (!src) continue;
+        const height = host.getAttribute('data-case-height') || '320';
+
+        const details = document.createElement('details');
+        details.className = 'case-iframe';
+
+        const summary = document.createElement('summary');
+        summary.textContent = 'Show isolated page here (iframe)';
+        details.appendChild(summary);
+
+        const bar = document.createElement('div');
+        bar.className = 'case-iframe__bar';
+        bar.innerHTML = `
+          <span>Source: <code>${src.replace(/</g,'&lt;')}</code></span>
+          <a href="${src}" target="_blank" rel="noopener">Open in new tab</a>
+          <button type="button" data-action="reload">Reload</button>
+        `;
+        details.appendChild(bar);
+
+        const iframe = document.createElement('iframe');
+        iframe.className = 'case-iframe__frame';
+        iframe.setAttribute('src', src);
+        iframe.setAttribute('title', 'Isolated case preview');
+        iframe.setAttribute('loading', 'lazy');
+        iframe.setAttribute('height', height);
+        iframe.setAttribute('referrerpolicy', 'no-referrer');
+        details.appendChild(iframe);
+
+        bar.querySelector('[data-action="reload"]').addEventListener('click', () => {
+          const u = new URL(iframe.src, location.href);
+          u.searchParams.set('_ts', String(Date.now()));
+          iframe.src = u.toString();
+        });
+
+        host.appendChild(details);
+      }
+    })();
+  </script>
+</body>
+</html>

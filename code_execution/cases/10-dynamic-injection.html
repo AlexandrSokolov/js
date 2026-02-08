@@ -1,0 +1,12 @@
+
+<!doctype html>
+<meta charset="utf-8" />
+<title>Case 10 – dynamic injection</title>
+<button id="b">Inject</button>
+<script>
+  document.getElementById('b').addEventListener('click', () => {
+    const s = document.createElement('script');
+    s.textContent = "alert('Injected script ran')";
+    document.body.appendChild(s);
+  });
+</script>

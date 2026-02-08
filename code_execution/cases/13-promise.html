@@ -1,0 +1,11 @@
+
+<!doctype html>
+<meta charset="utf-8" />
+<title>Case 13 – Promise microtask</title>
+<button id="b">Queue</button>
+<script>
+  document.getElementById('b').addEventListener('click', () => {
+    Promise.resolve().then(() => console.log('microtask executed'));
+    console.log('queued');
+  });
+</script>

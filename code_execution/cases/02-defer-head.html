@@ -1,0 +1,12 @@
+
+<!doctype html>
+<html><head>
+  <meta charset="utf-8" />
+  <title>Case 2 – defer in head</title>
+  <script defer>
+    document.addEventListener('DOMContentLoaded', () => {
+      document.body.textContent = 'Defer executed after DOM parsed.';
+      console.log('Case 2 ran');
+    });
+  </script>
+</head><body></body></html>

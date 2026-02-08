@@ -1,0 +1,13 @@
+services:
+  domainA:
+    image: node:20-alpine
+    working_dir: /app
+    volumes:
+      - ./:/app
+    environment:
+      - PORT=8000
+    command: ["npx", "-y", "serve", "/app", "-l", "8000"]
+    user: "node"
+    ports:
+      - "8000:8000"
+    container_name: js-trigger-demo

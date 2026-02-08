@@ -1,0 +1,18 @@
+
+<!doctype html>
+<html><head>
+  <meta charset="utf-8" />
+  <title>Case 3 – async in head</title>
+  <script async>
+    // DOM might not be ready here; guard:
+    function ready(fn){
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', fn);
+      } else { fn(); }
+    }
+    ready(() => {
+      document.body.textContent = 'Async executed (timing varies).';
+      console.log('Case 3 ran');
+    });
+  </script>
+</head><body></body></html>

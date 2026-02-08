@@ -1,0 +1,10 @@
+
+<!doctype html>
+<meta charset="utf-8" />
+<title>Case 6 – window.load</title>
+<img src="https://via.placeholder.com/300x100?text=Asset" alt="asset" />
+<script>
+  window.addEventListener('load', () => {
+    document.body.append(' | window.load fired after image loaded');
+  });
+</script>

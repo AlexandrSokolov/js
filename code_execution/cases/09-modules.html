@@ -1,0 +1,12 @@
+
+<!doctype html>
+<meta charset="utf-8" />
+<title>Case 9 – modules</title>
+<button id="b">Run</button>
+<script type="module">
+  const btn = document.getElementById('b');
+  btn.addEventListener('click', async () => {
+    const { hello } = await import('../scripts/mod-hello.js');
+    alert(hello());
+  });
+</script>

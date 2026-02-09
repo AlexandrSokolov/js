@@ -1,7 +1,7 @@
 
 ## Ways JavaScript Code Can Be Triggered on Page Load
 
-## 🧩 Summary Table
+### Summary Table
 
 | Method             | When It Runs     | DOM Ready?                | All Resources Loaded? | Use Case                  |
 |--------------------|------------------|---------------------------|-----------------------|---------------------------|

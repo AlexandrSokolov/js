@@ -1,0 +1,31 @@
+Loader diagnostics → module or dynamic import() (exec: https://cdn.example.com/diagnostic-loader.js?theme=dark)
+Context: {
+  timestamp: "2026-02-05T21:25:12.345Z",
+  inIframe: true,
+  sameOriginWithParent: null,
+  injectionType: "module or dynamic import()"
+}
+Sources: {
+  scriptTag: {
+    present: false,
+    src: null,
+    type: "classic",
+    async: null, defer: null, noModule: null,
+    dataset: {},
+    params: { search: {}, hash: {}, href: undefined }
+  },
+  executingUrl: {
+    present: true,
+    url: "https://cdn.example.com/diagnostic-loader.js?theme=dark",
+    params: { search: { theme: "dark" }, hash: {}, href: "..." }
+  },
+  documentUrl: {
+    href: "https://embed.example.com/page.html?lang=en",
+    params: { search: { lang: "en" }, hash: {}, href: "..." }
+  }
+}
+Summary: {
+  preferredSource: "executingUrl",
+  preferredParams: { search: { theme: "dark" }, hash: { } },
+  reason: "Looks like a module/dynamic import; using the executing module URL."
+}

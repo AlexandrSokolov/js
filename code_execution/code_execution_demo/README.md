@@ -1,7 +1,9 @@
 
 # JS Trigger Demo (Quick-Recall)
 
-Purpose: When you return to JS after a break, open `index.html` and quickly compare the common ways JavaScript executes/gets triggered. Each case is tiny, labeled, and logs to the on-page console.
+Purpose: When you return to JS after a break, open `index.html` and 
+quickly compare the common ways JavaScript executes/gets triggered. 
+Each case is tiny, labeled, and logs to the on-page console.
 
 ## How to use
 - Open `index.html` in a browser. Scroll and click the buttons to see logs.
@@ -21,7 +23,6 @@ Purpose: When you return to JS after a break, open `index.html` and quickly comp
 11. IIFE (Immediately Invoked Function Expression)
 12. `setTimeout` (micro/async demo)
 13. `Promise.then` / microtask ordering note
-14. `MutationObserver` as a reactive trigger
 
 Each case writes to the visual log and console with a shared helper.
 

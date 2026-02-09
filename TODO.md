@@ -31,3 +31,30 @@ The minimal requirement to ensure it can safely run. Any of these:
 ### Explains streaming parser nuances
 
 ### Mentions browser preload scanner & timing races
+
+###
+
+    <div class="case">
+      <h2>CASE 14 – MutationObserver trigger</h2>
+      <button id="btn-mutate">Mutate DOM</button>
+    </div>
+
+  <!--
+    CASE 14: MutationObserver
+    - Observes DOM changes and reacts when mutations occur.
+  -->
+  <script>
+    (function(){
+      const target = document.getElementById('vlog');
+      const mo = new MutationObserver(() => {
+        // Debounce a little; stamp once per mutation batch
+        __demo.stamp('CASE 14: MutationObserver noticed change');
+      });
+      mo.observe(target, { childList: true });
+      document.getElementById('btn-mutate').addEventListener('click', () => {
+        const x = document.createElement('div');
+        x.textContent = 'DOM mutated at ' + new Date().toLocaleTimeString();
+        target.appendChild(x);
+      });
+    })();
+  </script>

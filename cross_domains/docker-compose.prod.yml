@@ -1,0 +1,12 @@
+# ---- docker-compose.prod.yml ----
+# to build it, run:
+# docker compose -f docker-compose.prod.yml up --build -d
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: mycompany/team/static-server:latest
+    ports:
+      - "5000:5000"
+    # no volumes in production

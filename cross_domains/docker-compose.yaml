@@ -1,0 +1,34 @@
+services:
+  domainA:
+    image: node:20-alpine
+    working_dir: /app
+    volumes:
+      - ./domainA:/app
+    environment:
+      - PORT=8000
+    command: ["npx", "-y", "serve", "-s", "/app", "-l", "8000"]
+    user: "node"
+    ports:
+      - "8000:8000"
+    networks:
+      - devnet
+    container_name: domainA
+
+  domainB:
+    image: node:20-alpine
+    working_dir: /app
+    volumes:
+      - ./domainB:/app
+    environment:
+      - PORT=9000
+    command: ["npx", "-y", "serve", "-s", "/app", "-l", "9000"]
+    user: "node"
+    ports:
+      - "9000:9000"
+    networks:
+      - devnet
+    container_name: domainB
+
+networks:
+  devnet:
+    driver: bridge
